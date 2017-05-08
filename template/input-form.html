@@ -1,0 +1,36 @@
+{% extends "header.html" %} {% block content %}{% load bs4 %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">Home</li>
+    <li class="breadcrumb-item"><a href="#">Admin</a>
+    </li>
+    <li class="breadcrumb-item active">Dashboard</li>
+
+    <!-- Breadcrumb Menu-->
+</ol>
+<div class="container-fluid">
+    <div class="animated fadeIn">
+        <div class="card">
+            <form name="input-maps" method="POST" enctype="multipart/form-data" action="/test/input_maps/">
+                <div class="card-header">
+                    <h4 class="card-title">Input Data Maps</h4>
+                </div>
+                <div class="card-block">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="title">Title</label> {{form.title}}
+                        <small id="title" class="form-text text-muted">Title of data</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="file">File</label> {{form.files}}
+                        <small id="file" class="form-text text-muted">Files of data</small>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Uploads</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

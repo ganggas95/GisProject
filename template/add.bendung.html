@@ -1,0 +1,149 @@
+{% extends "header.html" %} {% block content %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">Home</li>
+    <li class="breadcrumb-item"><a href="#">Admin</a>
+    </li>
+    <li class="breadcrumb-item active">Dashboard</li>
+
+    <!-- Breadcrumb Menu-->
+</ol>
+<div class="container-fluid row">
+    <div class="animated fadeIn col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Bendung</h4>
+                <p class="card-text">Tambah Bendung</p>
+            </div>
+            <div class="card-block">
+                <div class="form-group">
+                    <label for="nama_bendung">Nama Bendung :</label> {{form.nama_bendung}}
+                </div>
+                <div class="form-group">
+                    <label for="tahun_buat">Tahun Pembuatan :</label> {{form.tahun_buat}}
+                </div>
+                <div class="form-group">
+                    <label for="biaya">Biaya :</label> {{form.biaya}}
+                </div>
+                <div class="form-group">
+                    <label for="latlang">Latitude-Langitude :</label>
+                    <div class="input-group" id="latlang">
+                        {{form.lat}}{{form.lang}}
+                        <span class="input-group-btn">
+                            <button class="btn btn-secondary" type="button" onclick="cekLatLang()">Cek</button>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="desa">Desa :</label> {{form.desa}}
+                </div>
+                <div class="form-group">
+                    <label for="kec">Kecamatan :</label> {{form.kec}}
+                </div>
+                <div class="form-group">
+                    <label for="kab">Kabupaten :</label> {{form.kab}}
+                </div>
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary"><i class="fa fa-save fa-fw" aria-hidden="true"></i> Simpan</button>
+                <button class="btn btn-info"><i class="fa fa-arrow-left fa-fw" aria-hidden="true"></i> Batal</button>
+            </div>
+        </div>
+    </div>
+    <div class="animated fadeIn col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Maps</h4>
+                {% comment %}
+                <p class="card-text">Leaflet.js</p>{% endcomment %}
+            </div>
+            <div class="card-block" id="map" style="height: 500px">
+
+            </div>
+            <div class="card-footer text-muted">
+                Header
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // This example displays a marker at the center of Australia.
+    // When the user clicks the marker, an info window opens.
+    var map = null;
+    var geocoder = null;
+
+    var marker = null;
+    //time in ms, 5 second for example
+    $(document).ready(function () {
+        var ntb = { lat: -8.6992226, lng: 117.5272268 };
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 8,
+            center: ntb
+        });
+        geocoder = new google.maps.Geocoder();
+        map.addListener('click', function (event) {
+            placeMarkerAndPanTo(event.latLng, map);
+            console.log(event.latLng)
+            geocoder.geocode({
+                'latLng': event.latLng
+            }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[0]) {
+                        var addresses = (results[0].formatted_address).split(", ");
+                        $('#desa').val(addresses[1]);
+                        $('#kec').val(addresses[2]);
+                        $('#kab').val(addresses[3]);
+                    }
+                }
+            });
+            var lat = event.latLng.lat();
+            var lng = event.latLng.lng();
+            // populate yor box/field with lat, lng
+            $('#lat').val(lat);
+            $('#lang').val(lng);
+        });
+        map.data.setStyle({
+            visible:false,
+        });
+         map.data.loadGeoJson(
+        '/temp/das_lombok.json');
+
+    });
+
+   
+    function cekLatLang() {
+        var $lat = parseFloat($('#lat').val());
+        var $lang = parseFloat($('#lang').val());
+        var latLng = { lat: $lat, lng: $lang };
+        placeMarkerAndPanTo(latLng, map);
+        console.log(latLng);
+        geocoder.geocode({
+            'latLng': latLng,
+        }, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                if (results[0]) {
+                    var addresses = (results[0].formatted_address).split(", ");
+                    $('#desa').val(addresses[1]);
+                    $('#kec').val(addresses[2]);
+                    $('#kab').val(addresses[3]);
+                }
+            }
+        });
+    }
+
+    function placeMarkerAndPanTo(latLng, map) {
+        if (marker != null) {
+            marker.setMap(null);
+        }
+        marker = null;
+        marker = new google.maps.Marker({
+            position: latLng,
+            map: map
+        });
+        map.panTo(latLng);
+    }
+
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBr7F-GE7zw7Y313CDvtG4Q2N_F9lNI1h4">
+
+</script>
+{% endblock %}

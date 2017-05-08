@@ -1,0 +1,108 @@
+{% extends "header.html" %} {% block content %}
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">Home</li>
+  <li class="breadcrumb-item"><a href="#">Admin</a>
+  </li>
+  <li class="breadcrumb-item active">Dashboard</li>
+
+  <!-- Breadcrumb Menu-->
+</ol>
+<div class="container-fluid">
+  <div class="animated fadeIn">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Maps</h4>
+        <p class="card-text">Leaflet.js</p>
+      </div>
+      <div class="card-block" id="map" style="height: 500px">
+
+      </div>
+      <div class="card-footer text-muted">
+        Header
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $(document).ready(function () {
+    var ntb = { lat: -8.6992226, lng: 117.5272268 };
+    var map = new google.maps.Map(document.getElementById('map'), {
+      zoom: 8,
+      center: ntb
+    });
+
+    var marker = null;
+    map.data.loadGeoJson(
+      '/temp/das_lombok.json');
+    map.data.setStyle({
+      strokeColor: "#0099d4",
+      strokeOpacity: 0.5,
+      strokeWeight: 1,
+      fillOpacity: 0.01,
+      fillColor: 'green'
+    });
+    map.data.addListener('click', function (event) {
+      console.log(event.feature.getGeometry().get())
+      var point;
+      event.feature.getGeometry().getArray().forEach(function (path) {
+        path.getArray().forEach(function (latLng) {
+          point = new google.maps.LatLng(latLng[0], latLng[1]);
+        });
+      });
+      //Construct polygon using the path provided 
+      if (marker != null) {
+        marker.setMap(null);
+      }
+      marker = null;
+      marker = new google.maps.Marker({
+        paths: point,
+        visible: false,
+        clickable: false,
+        map : map,
+      });
+
+      var contentString = '<div class="table-responsive">\
+                              <table class="table table-stripped">\
+                                <thead>\
+                                  <tr>\
+                                    <th colspan="3">Data DAS</th>\
+                                  </tr>\
+                                </thead>\
+                                <tbody>\
+                                  <tr>\
+                                    <td scope="row">Nama Das</td>\
+                                    <td>:</td>\
+                                    <td>'+ event.feature.getProperty('NAMA_DAS') + '</td>\
+                                  </tr>\
+                                  <tr>\
+                                    <td scope="row">Kode Das</td>\
+                                    <td>:</td>\
+                                    <td>'+ event.feature.getProperty('KODE') + '</td>\
+                                  </tr>\
+                                  <tr>\
+                                    <td scope="row">Area</td>\
+                                    <td>:</td>\
+                                    <td>'+ event.feature.getProperty('AREA') + '</td>\
+                                  </tr>\
+                                  <tr>\
+                                    <td scope="row">Perimeter</td>\
+                                    <td>:</td>\
+                                    <td>'+ event.feature.getProperty('PERIMETER') + '</td>\
+                                  </tr>\
+                                </tbody>\
+                              </table>\
+                            </div>';
+      var infowindow = new google.maps.InfoWindow({
+        content: contentString
+      });
+      infowindow.open(map, marker)
+    });
+  });
+
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBr7F-GE7zw7Y313CDvtG4Q2N_F9lNI1h4">
+
+</script>
+
+{% endblock %}
